@@ -127,7 +127,7 @@ function retweet(tweetId) {
 // stream.on('tweet', (data) => {
 //   if (data.in_reply_to_screen_name === 'NodeFTW') {
 //     submitTweet(('@'+data.user.screen_name+' '+
-//                   responses[Math.floor(Math.random()*5)]+
+//                   responses[Math.floor(Math.random()*6)]+
 //                   ' btw your lucky number is: '+
 //                   Math.floor(Math.random()*5000)
 //                 ));
@@ -157,7 +157,8 @@ T.get('users/show', {
                         '\n-------------------------------');
             submitTweetReply(('@'+tweet.user.screen_name+' '+
                               responsesForReply[Math.floor(Math.random()*6)]+
-                              ' btw your lucky number is: '+
+                              ' '+emoticons[Math.floor(Math.random()*6)]
+                              +' btw your lucky number is: '+
                               Math.floor(Math.random()*5000)
                              ), tweet.id_str);
             console.log('Reply Sent!');
@@ -172,19 +173,28 @@ T.get('users/show', {
 }));
 
 var responses = [
-'Thank you for tweeting at me!',
-'I\'m not sure how I feel about your tweet!',
-'Please refrain from sending me messages like this!',
-':^) I think you\'re cute!',
-'There\'s nothing like a conversation with an Autonomous machine!',
-'Your input is greatly appreciated on the subject xD'
+  'Thank you for tweeting at me!',
+  'I\'m not sure how I feel about your tweet!',
+  'Please refrain from sending me messages like this!',
+  ':^) I think you\'re cute!',
+  'There\'s nothing like a conversation with an Autonomous machine!',
+  'Your input is greatly appreciated on the subject xD'
 ];
 
 var responsesForReply = [
-'Wow Much CONTENT! I really enjoyed this one!',
-'I\'m not sure how I feel about this!',
-'OMG I love your tweets bro!',
-':^) I think you\'re cute!',
-'There\'s nothing like a conversation with an Autonomous machine!',
-'Your input is greatly appreciated on the subject xD'
+  'Wow much CONTENT! I really enjoyed this one!',
+  'I\'m not sure how I feel about this!',
+  'OMG I love your perspective bro!',
+  ':^) I\'m your biggest fan!',
+  'There\'s nothing like a conversation with an autonomous machine!',
+  'Berry Good! I couldn\'t have said it better myself!'
+];
+
+var emoticons = [
+  '(☞ﾟヮﾟ)☞ ☜(ﾟヮﾟ☜)',
+  '▔\▁(ヅ)▁/▔',
+  '\(ˆ▽ˆ)/',
+  '(ﾉ °益°)ﾉ 彡 ┻━┻',
+  '┻━┻ ︵ヽ(`□´)ﾉ︵﻿ ┻━┻',
+  '〜(￣▽￣〜)(〜￣▽￣)〜'
 ];
