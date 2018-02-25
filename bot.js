@@ -5,10 +5,17 @@ var authKey = require('./twitAuth.js');
 
 var T = new twit(authKey);
 // var stream = T.stream('user');
+
 var targetUsername = '';
 if (process.argv[2]) {
-  console.log('Targeting User: '+process.argv[2]);
   targetUsername = process.argv[2];
+}
+if (process.argv[2] === 'NodeFTW' && process.argv[3] === 'clean') {
+  console.log('Destroying all bot tweets!')
+  cleanStatuses();
+} else {
+  console.log('Targeting User: '+process.argv[2]);
+  runBot();
 }
 
 /* Get request based on search query */
@@ -139,38 +146,48 @@ function retweet(tweetId) {
 /* Main Bot Code
    Stream that will like, retweet, and reply to any tweets
    created by the specified user in real time */
-T.get('users/show', {
-  screen_name: targetUsername,
-  }, ((err, data, response) => {
-    if (err) {
-      console.log('Something went wrong:\n',err);
-    }
-    if (data.id_str) {
-      console.log('User Found! Beginning bot protocol!');
+function runBot() {
+  T.get('users/show', {
+    screen_name: targetUsername,
+    }, ((err, data, response) => {
+      if (err) {
+        console.log('Something went wrong:\n',err);
+      }
+      if (data.id_str) {
+        console.log('User Found! Beginning bot protocol!');
+        startStream(data.id_str);
 
-      var targetUserId = data.id_str;
-      var stream = T.stream('statuses/filter', {follow: targetUserId});
+        setInterval(() => {submitTweet(
+          '.@'+targetUsername+' What\'s up? '+emoticons[Math.floor(Math.random()*6)]+
+          ' btw your luck number is: '+Math.floor(Math.random()*5001));
+        }, 1000*5);
 
-        stream.on('tweet', (tweet) => {
-          if (tweet.user.id_str === targetUserId) {
-            console.log('Responding to tweet:\n'+tweet.text+
-                        '\n-------------------------------');
-            submitTweetReply(('@'+tweet.user.screen_name+' '+
-                              responsesForReply[Math.floor(Math.random()*6)]+
-                              ' '+emoticons[Math.floor(Math.random()*6)]
-                              +' btw your lucky number is: '+
-                              Math.floor(Math.random()*5000)
-                             ), tweet.id_str);
-            console.log('Reply Sent!');
-            likeTweet(tweet.id_str);
-            console.log('Like Sent!');
-            retweet(tweet.id_str);
-            console.log('Retweet Sent!'+
-                        '\n-------------------------------');
-          }
-       });
+      }
+  }));
+}
+
+function startStream(userID) {
+  var stream = T.stream('statuses/filter', { follow: userID });
+
+  stream.on('tweet', (tweet) => {
+    if (tweet.user.id_str === targetUserId) {
+      console.log('Responding to tweet:\n'+tweet.text+
+                  '\n-------------------------------');
+      submitTweetReply(('@'+tweet.user.screen_name+' '+
+                        responsesForReply[Math.floor(Math.random()*6)]+
+                        ' '+emoticons[Math.floor(Math.random()*6)]
+                        +' btw your lucky number is: '+
+                        Math.floor(Math.random()*5000)
+                       ), tweet.id_str);
+      console.log('Reply Sent!');
+      likeTweet(tweet.id_str);
+      console.log('Like Sent!');
+      retweet(tweet.id_str);
+      console.log('Retweet Sent!'+
+                  '\n-------------------------------');
     }
-}));
+  });
+}
 
 var responses = [
   'Thank you for tweeting at me!',
@@ -198,3 +215,43 @@ var emoticons = [
   '┻━┻ ︵ヽ(`□´)ﾉ︵﻿ ┻━┻',
   '〜(￣▽￣〜)(〜￣▽￣)〜'
 ];
+
+async function cleanStatuses() {
+  var tweetsExist = true;
+  while (tweetsExist) {
+    var tweetsArray = await findTweets();
+    if (tweetsArray.data.length === 0) {
+      tweetsExist = false;
+    } else {
+      console.log('Deteted Tweet: ', tweetsArray.data.text);
+    }
+  }
+}
+
+function findTweets() {
+  return T.get('statuses/user_timeline', {
+    screen_name: targetUsername,
+    count: 1,
+  }, (async (err, data, response) => {
+    if (err) {
+      console.log('Something went wrong! ', err);
+    }
+    if (data[0] && data[0].id_str) {
+      console.log('Attempting to delete tweet: '+data[0].id_str);
+      await deleteMostRecentTweet(data);
+    } else {
+      console.log('ALL DONE!');
+    }
+  }));
+}
+
+function deleteMostRecentTweet(data) {
+    return T.post('statuses/destroy/:id', {
+      id: data[0].id_str
+    }, (err, data, response) => {
+      if (err) {
+        console.log('Something went wrong in deletion! ', err);
+      }
+      console.log('Tweet deleted successfully!');
+    });
+}
