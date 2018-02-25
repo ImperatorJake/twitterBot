@@ -157,10 +157,10 @@ function runBot() {
         console.log('User Found! Beginning bot protocol!');
         startStream(data.id_str);
 
-        setInterval(() => {submitTweet(
-          '.@'+targetUsername+' What\'s up? '+emoticons[Math.floor(Math.random()*6)]+
-          ' btw your luck number is: '+Math.floor(Math.random()*5001));
-        }, 1000*5);
+        // setInterval(() => {submitTweet(
+        //   '.@'+targetUsername+' What\'s up? '+emoticons[Math.floor(Math.random()*6)]+
+        //   ' btw your luck number is: '+Math.floor(Math.random()*5001));
+        // }, 1000*5);
 
       }
   }));
@@ -170,7 +170,7 @@ function startStream(userID) {
   var stream = T.stream('statuses/filter', { follow: userID });
 
   stream.on('tweet', (tweet) => {
-    if (tweet.user.id_str === targetUserId) {
+    if (tweet.user.id_str === userID) {
       console.log('Responding to tweet:\n'+tweet.text+
                   '\n-------------------------------');
       submitTweetReply(('@'+tweet.user.screen_name+' '+
