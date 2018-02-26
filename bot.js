@@ -144,8 +144,8 @@ function retweet(tweetId) {
 // });
 
 /* Main Bot Code
-   Stream that will like, retweet, and reply to any tweets
-   created by the specified user in real time */
+  - searches for user
+  - if found starts a stream to the twitter api */
 function runBot() {
   T.get('users/show', {
     screen_name: targetUsername,
@@ -157,6 +157,7 @@ function runBot() {
         console.log('User Found! Beginning bot protocol!');
         startStream(data.id_str);
 
+        // Running this sort of function is how you get banned xD
         // setInterval(() => {submitTweet(
         //   '.@'+targetUsername+' What\'s up? '+emoticons[Math.floor(Math.random()*6)]+
         //   ' btw your luck number is: '+Math.floor(Math.random()*5001));
@@ -166,6 +167,8 @@ function runBot() {
   }));
 }
 
+/* Stream that will like, retweet, and reply to any tweets
+   created by the specified user in real time */
 function startStream(userID) {
   var stream = T.stream('statuses/filter', { follow: userID });
 
@@ -216,6 +219,7 @@ var emoticons = [
   '〜(￣▽￣〜)(〜￣▽￣)〜'
 ];
 
+/* Function for cleaning up the bot's tweets */
 async function cleanStatuses() {
   var tweetsExist = true;
   while (tweetsExist) {
@@ -230,6 +234,7 @@ async function cleanStatuses() {
   }
 }
 
+/* Function for finding tweets to delete */
 function findTweets() {
   return T.get('statuses/user_timeline', {
     screen_name: targetUsername,
@@ -241,6 +246,7 @@ function findTweets() {
   });
 }
 
+/* Function for deleting a tweet specified by the string tweetID */
 function deleteMostRecentTweet(tweetID) {
     return T.post('statuses/destroy/:id', {
       id: tweetID
