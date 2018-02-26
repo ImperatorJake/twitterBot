@@ -221,9 +221,11 @@ async function cleanStatuses() {
   while (tweetsExist) {
     var tweetsArray = await findTweets();
     if (tweetsArray.data.length === 0) {
+      console.log('ALL DONE!');
       tweetsExist = false;
     } else {
-      console.log('Deteted Tweet: ', tweetsArray.data.text);
+      console.log('Deteting Tweet: ', tweetsArray.data[0].text);
+      await deleteMostRecentTweet(tweetsArray.data[0].id_str);
     }
   }
 }
@@ -232,22 +234,16 @@ function findTweets() {
   return T.get('statuses/user_timeline', {
     screen_name: targetUsername,
     count: 1,
-  }, (async (err, data, response) => {
+  },  (err, data, response) => {
     if (err) {
       console.log('Something went wrong! ', err);
     }
-    if (data[0] && data[0].id_str) {
-      console.log('Attempting to delete tweet: '+data[0].id_str);
-      await deleteMostRecentTweet(data);
-    } else {
-      console.log('ALL DONE!');
-    }
-  }));
+  });
 }
 
-function deleteMostRecentTweet(data) {
+function deleteMostRecentTweet(tweetID) {
     return T.post('statuses/destroy/:id', {
-      id: data[0].id_str
+      id: tweetID
     }, (err, data, response) => {
       if (err) {
         console.log('Something went wrong in deletion! ', err);

@@ -4,7 +4,7 @@
   "description": "A simple bot for twitter!",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js Imperator_Jake",
+    "start": "node bot.js \"Imperator_Jake\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
